@@ -36,6 +36,7 @@ int main(void)
 	fprintf(stderr, "Image load Error: %s\n", SDL_GetError());
 	return -1;
     }
+
     SDL_Rect image_position;
     image_position.x = 0;
     image_position.y = 0;
@@ -44,8 +45,8 @@ int main(void)
 
     double delta_time = 1.0/60.0; // Cap framerate to 60fps
     bool running = true; // App is running
-    double image_x = 0;
-    double image_y = 0;
+    double image_x = 0; // For double to int convers in Rect
+    double image_y = 0; // For double to int convers in Rect
     SDL_Event e;
 
     while (running) {
@@ -58,10 +59,10 @@ int main(void)
 	}
 	image_x = image_x + (5 * delta_time); // Move image every frame
 	image_position.x = image_x;
+	SDL_FillRect(window_surface, NULL, SDL_MapRGB(window_surface->format, 0, 0, 0));
 	SDL_BlitSurface(image, NULL, window_surface, &image_position);
 	SDL_UpdateWindowSurface(window);
     }
-    // Clean
     SDL_FreeSurface(window_surface);
     SDL_DestroyWindow(window);
     return 0;
