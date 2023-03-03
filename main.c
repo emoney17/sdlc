@@ -59,7 +59,8 @@ int main(void)
 	}
 	image_x = image_x + (5 * delta_time); // Move image every frame
 	image_position.x = image_x;
-	SDL_FillRect(window_surface, NULL, SDL_MapRGB(window_surface->format, 0, 0, 0));
+	SDL_FillRect(window_surface, NULL,
+		     SDL_MapRGB(window_surface->format, 0, 0, 0)); // Clean the screen before draw 
 	SDL_BlitSurface(image, NULL, window_surface, &image_position);
 	SDL_UpdateWindowSurface(window);
     }
