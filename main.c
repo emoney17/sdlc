@@ -42,6 +42,17 @@ int main(void)
 	SDL_RenderDrawLine(renderer, 200, 200, 100, 200);
 	SDL_RenderDrawLine(renderer, 100, 200, 100, 100);
 
+	SDL_RenderDrawLine(renderer, 150, 150, 250, 150);
+	SDL_RenderDrawLine(renderer, 250, 150, 250, 250);
+	SDL_RenderDrawLine(renderer, 250, 250, 150, 250);
+	SDL_RenderDrawLine(renderer, 150, 250, 150, 150);
+
+
+	SDL_RenderDrawLine(renderer, 100, 100, 150, 150);
+	SDL_RenderDrawLine(renderer, 200, 100, 250, 150);
+	SDL_RenderDrawLine(renderer, 200, 200, 250, 250);
+	SDL_RenderDrawLine(renderer, 100, 200, 150, 250);
+
 	frameTime = SDL_GetTicks() - frameStart; 
 	if (FRAME_DELAY >= frameTime) 
 	    SDL_Delay(FRAME_DELAY - frameTime);
