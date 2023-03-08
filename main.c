@@ -1,128 +1,132 @@
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_stdinc.h>
 #include <stdio.h>
 #include <stdbool.h>
+
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
-#define TITLE "SDL2 Window"
-#define WIDTH 680
-#define HEIGHT 400
-#define delta_time 1.0/60.0 // Cap framerate to 60fps
+#define FPS 60
+#define FRAME_DELAY 1000/60
+#define W_TITLE "no clean code"
+#define W_WIDTH 500
+#define W_HEIGHT 500
 
-enum Direction{ NONE, UP, DOWN, LEFT, RIGHT };
-enum Direction direction;
-
-void process_keys(SDL_Event event);
-void process_directions(double* x, double* y);
-
-int main(void)
+typedef struct
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-	    fprintf(stderr, "Init Error: %s\n", SDL_GetError());
-	    return -1;
-    }
+    int x;
+    int y;
+    int w;
+    int h;
+    const char* path;
+}Entity;
 
-    SDL_Window *window = SDL_CreateWindow(
-	    TITLE,
-	    0,
-	    0,
-	    WIDTH,
-	    HEIGHT,
-	    0);
-    if (!window) {
-	    fprintf(stderr, "Window Error: %s\n", SDL_GetError());
-	    return -1;
-    }
+void init(SDL_Window** window, SDL_Renderer** renderer);
+Entity createEntity(int x, int y, int w, int h, const char* path);
+void draw(Entity entity, SDL_Renderer* renderer);
+float hireTimeInSeconds();
 
-    SDL_Surface *window_surface = SDL_GetWindowSurface(window);
-    if (!window_surface) {
-	    fprintf(stderr, "Surface Error: %s\n", SDL_GetError());
-	    return -1;
-    }
+int main()
+{
+    SDL_Window* window = NULL;
+    SDL_Renderer* renderer = NULL;
+    init(&window, &renderer);
 
-    SDL_Surface* image = SDL_LoadBMP("./Untitled.bmp");
-    if (!image) {
-	    fprintf(stderr, "Image load Error: %s\n", SDL_GetError());
-	    return -1;
-    }
+    Entity allEntities[] = {
+	createEntity(200, 0, 50, 50, "./sankyuu.png"),
+	createEntity(300, 300, 50, 50, "./sankyuu.png"),
+	createEntity(0, 0, 200, 200, "./splash.png"),
+    };
 
-    SDL_Rect image_position;
-    image_position.x = 0;
-    image_position.y = 0;
-    image_position.w = 50;
-    image_position.h = 50;
+    SDL_Rect rect1;
+    rect1.x = 400;
+    rect1.y = 400;
+    rect1.w = 100;
+    rect1.h = 100;
+    
+    SDL_Rect rect2;
+    rect2.x = 370;
+    rect2.y = 370;
+    rect2.w = 100;
+    rect2.h = 100;
 
-    double x = 0.0;
-    double y = 0.0;
-    bool running = true; // App is running
-
+    SDL_Rect inter;
+    SDL_IntersectRect(&rect1, &rect2, &inter);
+    
+    bool running = true;
     SDL_Event e;
+
+    unsigned int frameStart;
+    int frameTime;
+    int count = 0;
+    
     while (running) {
-	    while (SDL_PollEvent(&e) > 0) {
-            process_keys(e);
-	        switch(e.type) {
-	            case SDL_QUIT:
-		        running = false;
-		        break;
-	        }
-	    }
-	    process_directions(&x, &y);
-	    image_position.x = x;
-	    image_position.y = y;
-	    SDL_FillRect(window_surface, NULL,
-		     SDL_MapRGB(window_surface->format, 0, 0, 0)); // Clean the screen before draw
-	    SDL_BlitSurface(image, NULL, window_surface, &image_position);
-	    SDL_UpdateWindowSurface(window);
+
+	frameStart = SDL_GetTicks(); // how many ms since init sdl2
+
+	while (SDL_PollEvent(&e)) {
+	    if (e.type == SDL_QUIT)
+		running = false;
+	}
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 225); // clear color
+	SDL_RenderClear(renderer);
+
+	SDL_SetRenderDrawColor(renderer, 225, 225, 225, 225); // rect color
+	SDL_RenderDrawRect(renderer, &rect1);
+	SDL_RenderDrawRect(renderer, &rect2);
+
+	SDL_SetRenderDrawColor(renderer, 225, 0, 0, 225); // inter color
+	SDL_RenderFillRect(renderer, &inter);
+
+	for (int i = 0; i < 3; i++) {
+	    draw(allEntities[i], renderer);
+	}
+	frameTime = SDL_GetTicks() - frameStart; // how long in ms frames taken to render and everything
+	if (FRAME_DELAY >= frameTime) 
+	    SDL_Delay(FRAME_DELAY - frameTime);
+
+	printf("%d\n", count);
+	count++;
+	SDL_RenderPresent(renderer);
     }
-    SDL_FreeSurface(window_surface);
     SDL_DestroyWindow(window);
+    SDL_QUIT;
+
     return 0;
 }
 
-void process_keys(SDL_Event event)
+void init(SDL_Window** window, SDL_Renderer** renderer)
 {
-    Uint8 const* keys;
-    switch(event.type) {
-        case SDL_KEYDOWN:
-            keys = SDL_GetKeyboardState(NULL);
-            if (keys[SDL_SCANCODE_W] == 1) {
-                direction = UP;
-                printf("UP\n");
-            }
-            else if (keys[SDL_SCANCODE_S] == 1) {
-                direction = DOWN;
-                printf("DOWN\n");
-            }
-            else if (keys[SDL_SCANCODE_A] == 1) {
-                direction = LEFT;
-                printf("LEFT\n");
-            }
-            else if (keys[SDL_SCANCODE_D] == 1) {
-                printf("RIGHT\n");
-                direction = RIGHT;
-            }
-            break;
-    }
+    if (SDL_Init(SDL_INIT_VIDEO) > 0) fprintf(stderr, "Error initializing sdl: %s\n", SDL_GetError());
+    if (!(IMG_Init(IMG_INIT_PNG))) fprintf(stderr, "Error initializing sdl image: %s\n", SDL_GetError());
+
+    *window = SDL_CreateWindow(W_TITLE, 0, 0, W_WIDTH, W_HEIGHT, 0);
+    if (!*window) fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
+
+    *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
+    if (!*renderer) fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
 }
 
-void process_directions(double* x, double* y)
+Entity createEntity(int x, int y, int w, int h, const char* path)
 {
-    switch(direction) {
-        case NONE:
-	    *x += 0.0;
-	    *y += 0.0;
-	    break;
-        case UP:
-	    *y  = *y - (5.0 * delta_time);
-            break;
-        case DOWN:
-            *y = *y + (5.0 * delta_time);
-            break;
-        case LEFT:
-            *x = *x - (5.0 * delta_time);
-            break;
-        case RIGHT:
-            *x = *x + (5.0 * delta_time);
-            break;
-    }
+    Entity entity;
+    entity.x = x; 
+    entity.y = y; 
+    entity.w = w; 
+    entity.h = h; 
+    entity.path = path; 
+    return entity;
+}
+
+void draw(Entity entity, SDL_Renderer* renderer)
+{
+    SDL_Texture* texture = IMG_LoadTexture(renderer, entity.path);
+    if (!texture) 
+	fprintf(stderr, "Error loading texture: %s\n", SDL_GetError());
+
+    SDL_Rect dst;
+    dst.x = entity.x;
+    dst.y = entity.y;
+    dst.w = entity.w;
+    dst.h = entity.h;
+
+    SDL_RenderCopy(renderer, texture, NULL, &dst);
 }
