@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -11,7 +12,6 @@
 #define W_HEIGHT 500
 
 void init(SDL_Window** window, SDL_Renderer** renderer);
-float hireTimeInSeconds();
 
 int main(void)
 {
@@ -19,13 +19,6 @@ int main(void)
     SDL_Renderer* renderer = NULL;
     init(&window, &renderer);
 
-    int cube[] = {
-	0, 0,
-	100, 0,
-	100, 100,
-	0, 100
-    };
-    
     bool running = true;
     SDL_Event e;
 
@@ -44,35 +37,11 @@ int main(void)
 	SDL_RenderClear(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 225, 225, 225, 225);
-	SDL_RenderDrawLine(
-	    renderer,
-	    cube[0], // 0
-	    cube[1], // 0
-	    cube[2], // 100
-	    cube[3] // 0
-	    );
-	SDL_RenderDrawLine(
-	    renderer,
-	    cube[2], // 100
-	    cube[3], // 0
-	    cube[4], // 100
-	    cube[5] // 100
-	    );
-	SDL_RenderDrawLine(
-	    renderer,
-	    cube[4], // 100
-	    cube[5], // 100
-	    cube[6], // 0 
-	    cube[7] // 100
-	    );
-	SDL_RenderDrawLine(
-	    renderer,
-	    cube[6], // 0
-	    cube[7], // 100
-	    cube[0], // 0 
-	    cube[1] // 0
-	    );
-	
+	SDL_RenderDrawLine(renderer, 100, 100, 200, 100);
+	SDL_RenderDrawLine(renderer, 200, 100, 200, 200);
+	SDL_RenderDrawLine(renderer, 200, 200, 100, 200);
+	SDL_RenderDrawLine(renderer, 100, 200, 100, 100);
+
 	frameTime = SDL_GetTicks() - frameStart; 
 	if (FRAME_DELAY >= frameTime) 
 	    SDL_Delay(FRAME_DELAY - frameTime);
@@ -99,4 +68,9 @@ void init(SDL_Window** window, SDL_Renderer** renderer)
 
     *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
     if (!*renderer) fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
+}
+
+void drawCube(int cube[])
+{
+    
 }
