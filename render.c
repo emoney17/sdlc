@@ -1,17 +1,9 @@
 #include "./render.h"
 
-typedef struct
-{
-    int x;
-    int y;
-    int w;
-    int h;
-    const char* path;
-}Entity;
-
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Texture* texture = NULL;
+SDL_Rect dest;
 int W_WIDTH = 640;
 int W_HEIGHT = 400;
 
@@ -46,21 +38,27 @@ bool init()
     return true;
 }
 
-void clear_screen()
+void create_entity(int x, int y, int w, int h, const char* path)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 225);
-    SDL_RenderClear(renderer);
+    texture = IMG_LoadTexture(renderer, path);
+    if (texture == NULL)
+	fprintf(stderr, "Error creating texture: %s\n", SDL_GetError());
+
+    dest.x = x;
+    dest.y = y;
+    dest.w = w;
+    dest.h = h;
 }
 
 void draw_entity()
 {
-    Entity entity = {0, 0, 50, 50, "./demo/sankyuu.png"};
-    texture = IMG_LoadTexture(renderer,entity.path);
-    if (texture == NULL)
-	fprintf(stderr, "Error creating texture: %s\n", SDL_GetError());
-
-    SDL_Rect dest = {entity.x, entity.y, entity.w, entity.h};
     SDL_RenderCopy(renderer, texture, NULL, &dest);
+}
+
+void clear_screen()
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 225);
+    SDL_RenderClear(renderer);
 }
 
 void draw_screen()

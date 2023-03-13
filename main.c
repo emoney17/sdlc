@@ -5,6 +5,15 @@
 
 #include "./render.h"
 
+typedef struct
+{
+    int x;
+    int y;
+    int w;
+    int h;
+    const char* path;
+}Entity;
+
 int main(void)
 {
     if (!init())
@@ -12,6 +21,10 @@ int main(void)
 
     SDL_Event e;
     bool running = true;
+
+    // Create entities
+    Entity e0 = {0, 0, 50, 50, "./demo/sankyuu.png"};
+    create_entity(e0.x, e0.y, e0.w, e0.h, e0.path);
 
     while (running)
     {
@@ -23,6 +36,7 @@ int main(void)
 		running = false;
 	    }
 	    clear_screen();
+	    // Draw entity
 	    draw_entity();
 	}
 	draw_screen();
