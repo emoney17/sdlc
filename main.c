@@ -1,21 +1,20 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
-#include "./window.h"
+#include "./render.h"
 
 int main(void)
 {
-    // Setup
-    SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
-    create_window_renderer(&window, &renderer);
-    bool running = true;
-    SDL_Event e;
+    if (!init())
+	return -1;
 
-    // Window loop
+    SDL_Event e;
+    bool running = true;
+
     while (running)
     {
-	clear(renderer); // Clear window to black
 	while(SDL_PollEvent(&e))
 	{
 	    switch(e.type)
@@ -23,10 +22,12 @@ int main(void)
 	    case SDL_QUIT:
 		running = false;
 	    }
+	    clear_screen();
+	    draw_entity();
 	}
-	draw(renderer); // Draw things from renderer
+	draw_screen();
     }
-    // Cleanup
-    clean(window, renderer);
+    clean_up();
+    printf("End of program\n");
     return 0;
 }
